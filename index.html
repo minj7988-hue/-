@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4단원 (1) 비교하며 읽기 - 스스로 학습 마스터</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Noto Sans KR -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f4f7fb;
+            color: #1e293b;
+        }
+        .tab-active {
+            border-bottom: 3px solid #4f46e5;
+            color: #4f46e5;
+            font-weight: 700;
+        }
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .animate-shake {
+            animation: shake 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- 상단 헤더 -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2.5 py-0.5 rounded-full">중3 국어 · 4단원 (1)</span>
+                    <span class="text-xs text-slate-400 font-medium">심원중학교 학습지 연계</span>
+                </div>
+            <!-- 현재 점수 배지 및 신원확인 상태 -->
+            <div class="flex items-center gap-2.5 self-start sm:self-auto">
+                <button onclick="openAuthModal()" id="auth-status-btn" class="flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-2 rounded-xl border border-indigo-200 text-xs font-bold transition-colors">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span id="auth-status-text">신원확인 필요</span>
+                </button>
+                <div class="flex items-center gap-3 bg-slate-50 px-3.5 py-2 rounded-xl border border-slate-200">
+                    <div class="text-right">
+                        <p class="text-[11px] text-slate-500 font-medium">현재 퀴즈 최고 점수</p>
+                        <p class="text-sm font-extrabold text-indigo-600"><span id="header-score">0</span>점 <span class="text-xs font-normal text-slate-400">/ 100점</span></p>
+                    </div>
+                    <div id="unlock-badge" class="w-9 h-9 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center transition-colors">
+                        <i class="fa-solid fa-lock text-sm"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 네비게이션 탭 -->
+        <nav class="max-w-4xl mx-auto px-4 flex border-t border-slate-100">
+            <button id="btn-tab1" onclick="switchTab('tab1')" class="flex-1 py-3.5 text-center text-sm sm:text-base transition-all tab-active flex items-center justify-center gap-2">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>탭 1. 개념 탐구 퀴즈</span>
+            </button>
+            <button id="btn-tab2" onclick="switchTab('tab2')" class="flex-1 py-3.5 text-center text-sm sm:text-base text-slate-500 hover:text-slate-800 transition-all flex items-center justify-center gap-2">
+                <i id="tab2-lock-icon" class="fa-solid fa-lock text-amber-500"></i>
+                <span>탭 2. 핵심 요약 복습 노트</span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- 메인 컨텐츠 영역 -->
+    <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-6 sm:py-8">
+
+        <!-- ==================== 탭 1: 퀴즈 영역 ==================== -->
+        <section id="tab1-content" class="space-y-6 animate-fade-in">
+            <!-- 안내 배너 -->
+            <div class="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-2xl p-5 text-white card-shadow flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-lg font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-lightbulb text-yellow-300"></i>
+                        학습지 없이 스스로 깨우치는 10문제!
+                    </h2>
+                    <p class="text-indigo-100 text-sm mt-1 leading-relaxed">
+                        틀려도 <strong>정답을 바로 알려주지 않아요!</strong> 제공되는 <strong>힌트</strong>를 읽고 다시 도전해 보세요.<br class="hidden sm:inline">
+                        <strong>90점 이상</strong>을 달성하면 <strong>[탭 2. 핵심 요약 복습 노트]</strong>가 열립니다!
+                    </p>
+                </div>
+                <div class="bg-white/15 backdrop-blur-sm px-4 py-2.5 rounded-xl text-center shrink-0 self-end sm:self-center">
+                    <span class="block text-xs text-indigo-100">해금 목표</span>
+                    <span class="text-xl font-extrabold text-yellow-300">90점 이상</span>
+                </div>
+            </div>
+
+            <!-- 지문 요약 열람 아코디언 -->
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden card-shadow">
+                <button onclick="togglePassage()" class="w-full px-5 py-4 flex items-center justify-between text-left bg-slate-50 hover:bg-slate-100 transition-colors">
+                    <span class="font-bold text-slate-700 flex items-center gap-2 text-sm sm:text-base">
+                        <i class="fa-solid fa-book-open text-indigo-600"></i>
+                        학습지 제시문 다시 보기 (클릭하여 펼치기/접기)
+                    </span>
+                    <i id="passage-chevron" class="fa-solid fa-chevron-down text-slate-400 transition-transform"></i>
+                </button>
+                <div id="passage-box" class="hidden p-5 border-t border-slate-200 space-y-5 text-sm leading-relaxed text-slate-700 max-h-96 overflow-y-auto bg-white">
+                    <div class="p-4 bg-rose-50/60 rounded-xl border border-rose-100">
+                        <h3 class="font-bold text-rose-800 text-base mb-2">[글 1] 잊힐 권리 법제화, 신중해야</h3>
+                        <p class="mb-2">2014년 5월 유럽 사법 재판소의 판결 이후 우리나라에서도 잊힐 권리 법제화 논의가 활발하다. 그러나 법제화하면 다음과 같은 문제가 생길 수 있다.</p>
+                        <ul class="list-disc pl-5 space-y-1 text-slate-700">
+                            <li><strong>첫째, 국민의 알 권리 침해:</strong> 정치인 후보자의 과거 불리한 행적이 삭제되면 유권자가 적합한 인물인지 판단하기 어려워진다.</li>
+                            <li><strong>둘째, 표현의 자유 침해:</strong> '민호'가 친구 '정수'를 평가한 글을 올렸을 때 정수가 삭제를 요구하면 민호의 표현의 자유가 침해된다.</li>
+                            <li><strong>셋째, 법 적용 범위의 논란:</strong> 공인의 식사 정보처럼 공적 영역인지 사적 영역인지 판단 기준이 모호해 논란이 커진다.</li>
+                        </ul>
+                        <p class="mt-2 font-medium text-rose-900">→ 성급한 법제화 대신 인터넷 검색 서비스 기업들이 사회 통념을 고려해 기준과 절차를 마련하는 것이 바람직하다.</p>
+                    </div>
+
+                    <div class="p-4 bg-sky-50/60 rounded-xl border border-sky-100">
+                        <h3 class="font-bold text-sky-800 text-base mb-2">[글 2] 잊힐 권리 법제화, 시급해</h3>
+                        <p class="mb-2">유럽 연합은 2018년 '유럽 일반 개인 정보 보호법'을 시행했다. 국내에서도 잊힐 권리를 법제화해야 하는 까닭은 다음과 같다.</p>
+                        <ul class="list-disc pl-5 space-y-1 text-slate-700">
+                            <li><strong>첫째, 개인 정보 노출 및 사생활 침해 심각:</strong> 허위 사실이 더해져 확대·재생산되거나 악의적 '신상 털기'로 정상적인 사회생활이 어려워진다.</li>
+                            <li><strong>둘째, 개인 정보 자기 결정권 보장:</strong> 자신의 정보를 어느 범위까지 공개하고 이용할지 스스로 결정할 기본권을 보장해야 한다.</li>
+                            <li><strong>셋째, 현행법의 한계:</strong> 현행 개인 정보 보호법과 정보 통신망법은 '사생활 침해나 명예 훼손 사실'을 직접 증명해야만 삭제 요청이 가능하다.</li>
+                        </ul>
+                        <p class="mt-2 font-medium text-sky-900">→ 잊힐 권리를 하루빨리 법제화하여 사생활 침해를 막고 개인 정보 자기 결정권을 보장해야 한다.</p>
+                    </div>
+
+                    <div class="p-4 bg-amber-50/60 rounded-xl border border-amber-100">
+                        <h3 class="font-bold text-amber-800 text-base mb-2">[광고문] 나를 지워 주세요</h3>
+                        <p class="mb-1">"인터넷상에 퍼진 자신의 <strong>사진</strong>을 지우고 싶은 강우 / 인터넷 게시판에 올린 <strong>글</strong>을 지우고 싶은 나래 / 검색 결과에 나타나는 자신의 <strong>영상</strong>을 지우고 싶은 민철 / 지우고 싶은 <strong>과거</strong>가 있는 사람들"</p>
+                        <p class="font-medium text-amber-900 mt-1">핵심 문구: "잊힐 권리 - 잊혀서는 안 될 권리, 이제는 법으로 보장받아야 할 권리" (그림과 짧은 문구로 시각적·감성적 호소)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 퀴즈 진행 상태 바 -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 card-shadow flex items-center justify-between gap-4">
+                <div class="flex-1">
+                    <div class="flex justify-between text-xs font-bold text-slate-500 mb-1.5">
+                        <span>문제 해결 진행률</span>
+                        <span id="progress-text">0 / 10 완료</span>
+                    </div>
+                    <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                        <div id="progress-bar" class="bg-indigo-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+                <button onclick="resetQuiz()" class="text-xs font-semibold text-slate-500 hover:text-rose-600 px-3 py-2 rounded-lg border border-slate-200 hover:border-rose-200 transition-colors shrink-0">
+                    <i class="fa-solid fa-rotate-right mr-1"></i>처음부터 다시 풀기
+                </button>
+            </div>
+
+            <!-- 퀴즈 카드 컨테이너 -->
+            <div id="quiz-container" class="space-y-5">
+                <!-- 자바스크립트로 10문제 렌더링 -->
+            </div>
+
+            <!-- 하단 결과 요약 및 탭2 이동 유도 박스 -->
+            <div id="quiz-summary-box" class="bg-white rounded-2xl p-6 border-2 border-indigo-100 card-shadow text-center space-y-4">
+                <div id="summary-icon" class="w-16 h-16 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto text-2xl">
+                    <i class="fa-solid fa-award"></i>
+                </div>
+                <div>
+                    <h3 id="summary-title" class="text-xl font-extrabold text-slate-800">모든 문제를 풀고 90점 이상에 도전하세요!</h3>
+                    <p id="summary-desc" class="text-sm text-slate-500 mt-1">각 문제의 보기를 선택하면 즉시 채점되며, 오답 시 힌트가 제공됩니다.</p>
+                </div>
+                <div id="unlock-cta" class="hidden pt-2">
+                    <button onclick="switchTab('tab2')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-indigo-200 transition-all inline-flex items-center gap-2">
+                        <i class="fa-solid fa-unlock-keyhole"></i>
+                        <span>핵심 요약 복습 노트 확인하러 가기</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 탭 2: 시각적 복습 자료 영역 ==================== -->
+        <section id="tab2-content" class="hidden animate-fade-in">
+            <!-- 잠금 상태 화면 (90점 미만일 때 표시) -->
+            <div id="tab2-locked" class="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200 card-shadow text-center max-w-xl mx-auto my-6 space-y-5">
+                <div class="w-20 h-20 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-3xl shadow-inner">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <div class="space-y-2">
+                    <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full">복습 자료 잠금 상태</span>
+                    <h2 class="text-2xl font-extrabold text-slate-800 pt-1">퀴즈 90점 이상 달성 시 열립니다!</h2>
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        스스로 고민하며 문제를 해결해야 학습 내용이 오래 기억됩니다.<br>
+                        <strong>[탭 1. 개념 탐구 퀴즈]</strong>에서 힌트를 활용해 <strong>90점 이상</strong>을 획득해 주세요!
+                    </p>
+                </div>
+                <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 inline-block w-full max-w-xs">
+                    <p class="text-xs text-slate-500">현재 나의 점수</p>
+                    <p class="text-2xl font-extrabold text-indigo-600 mt-0.5"><span id="locked-current-score">0</span>점 <span class="text-sm font-medium text-slate-400">/ 목표 90점</span></p>
+                </div>
+                <div>
+                    <button onclick="switchTab('tab1')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3 rounded-xl transition-all inline-flex items-center gap-2">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>퀴즈 풀러 돌아가기</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 해금 완료 상태 화면 (90점 이상 달성 시 표시) -->
+            <div id="tab2-unlocked" class="hidden space-y-8">
+                <!-- 축하 상단 배너 -->
+                <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-6 text-white card-shadow flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-2xl shrink-0">
+                            <i class="fa-solid fa-crown text-yellow-300"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg sm:text-xl font-extrabold">축하합니다! 복습 노트가 해금되었습니다.</h2>
+                            <p class="text-emerald-100 text-sm mt-0.5">집에서도 아래 구조도를 보며 학습지의 핵심 개념을 완벽하게 복습해 보세요.</p>
+                        </div>
+                    </div>
+                    <span class="bg-white text-emerald-700 font-extrabold text-sm px-4 py-1.5 rounded-full shrink-0">학습 목표 달성 완료</span>
+                </div>
+
+                <!-- 1. 학습 목표 & 공통 화제 카드 -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 card-shadow">
+                    <div class="flex items-center gap-2 text-indigo-600 font-bold text-sm mb-2">
+                        <i class="fa-solid fa-bullseye"></i>
+                        <span>핵심 개념 01. 학습 목표 및 공통 화제</span>
+                    </div>
+                    <h3 class="text-xl font-extrabold text-slate-800 mb-4">동일한 화제를 다룬 글의 '관점'과 '형식' 비교하기</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-indigo-50/70 border border-indigo-100 rounded-xl p-4">
+                            <span class="text-xs font-bold text-indigo-600 uppercase">공통 화제</span>
+                            <p class="text-lg font-extrabold text-slate-800 mt-1">인터넷상 '잊힐 권리'의 법제화</p>
+                            <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">개인이 인터넷에 올라온 자신과 관련된 글, 사진, 동영상 등의 개인 정보를 지워 달라고 요청할 수 있는 권리를 법으로 만들 것인가에 대한 문제</p>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                            <span class="text-xs font-bold text-slate-500 uppercase">비교하며 읽기의 방법</span>
+                            <ul class="text-sm text-slate-700 mt-1.5 space-y-1.5">
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-emerald-500 mt-1"></i><span>글쓴이의 <strong>관점(찬성/반대)</strong>과 근거 비교하기</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-emerald-500 mt-1"></i><span>글의 <strong>형식(논설문 vs 광고문)</strong>에 따른 표현 효과 파악하기</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. [글 1] vs [글 2] 관점과 내용 한눈에 비교 -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 card-shadow space-y-5">
+                    <div class="flex items-center gap-2 text-indigo-600 font-bold text-sm">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>핵심 개념 02. 두 글의 관점 · 주장 · 근거 비교</span>
+                    </div>
+                    <h3 class="text-xl font-extrabold text-slate-800">같은 화제, 서로 다른 관점!</h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <!-- 글 1 카드 -->
+                        <div class="rounded-2xl border-2 border-rose-200 bg-rose-50/30 p-5 flex flex-col justify-between space-y-4">
+                            <div>
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="bg-rose-600 text-white text-xs font-bold px-3 py-1 rounded-full">글 1 (신중론 · 반대 관점)</span>
+                                    <span class="text-xs font-semibold text-rose-600">갈래: 논설문</span>
+                                </div>
+                                <h4 class="text-lg font-extrabold text-slate-800 mb-3">「잊힐 권리 법제화, 신중해야」</h4>
+                                
+                                <div class="bg-white rounded-xl p-3.5 border border-rose-100 mb-3">
+                                    <p class="text-xs font-bold text-rose-600 mb-1">핵심 주장</p>
+                                    <p class="text-sm font-bold text-slate-800">잊힐 권리를 성급하게 법제화하지 말고, 기업이 기준과 절차를 마련해 시행해야 한다.</p>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <p class="text-xs font-bold text-slate-500">세 가지 근거</p>
+                                    <div class="bg-white p-3 rounded-xl border border-slate-100 text-sm">
+                                        <span class="font-bold text-rose-600">① 국민의 알 권리 침해:</span> 정치 후보자의 과거 행적 삭제로 유권자 판단 저해
+                                    </div>
+                                    <div class="bg-white p-3 rounded-xl border border-slate-100 text-sm">
+                                        <span class="font-bold text-rose-600">② 표현의 자유 침해:</span> 타인에 대한 평가 게시물 삭제 요구 시 기본권 침해
+                                    </div>
+                                    <div class="bg-white p-3 rounded-xl border border-slate-100 text-sm">
+                                        <span class="font-bold text-rose-600">③ 법 적용 범위 논란:</span> 공적 정보와 사적 정보의 경계가 모호함 (예: 공인의 식사)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 글 2 카드 -->
+                        <div class="rounded-2xl border-2 border-sky-200 bg-sky-50/30 p-5 flex flex-col justify-between space-y-4">
+                            <div>
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="bg-sky-600 text-white text-xs font-bold px-3 py-1 rounded-full">글 2 (시급론 · 찬성 관점)</span>
+                                    <span class="text-xs font-semibold text-sky-600">갈래: 논설문</span>
+                                </div>
+                                <h4 class="text-lg font-extrabold text-slate-800 mb-3">「잊힐 권리 법제화, 시급해」</h4>
+                                
+                                <div class="bg-white rounded-xl p-3.5 border border-sky-100 mb-3">
+                                    <p class="text-xs font-bold text-sky-600 mb-1">핵심 주장</p>
+                                    <p class="text-sm font-bold text-slate-800">사생활 침해를 막고 개인 정보 자기 결정권을 보장하기 위해 잊힐 권리를 하루빨리 법제화해야 한다.</p>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <p class="text-xs font-bold text-slate-500">세 가지 근거</p>
+                                    <div class="bg-white p-3 rounded-xl border border-slate-100 text-sm">
+                                        <span class="font-bold text-sky-600">① 심각한 사생활 침해:</span> 허위 사실 확대·재생산 및 악의적 '신상 털기' 피해 발생
+                                    </div>
+                                    <div class="bg-white p-3 rounded-xl border border-slate-100 text-sm">
+                                        <span class="font-bold text-sky-600">② 개인 정보 자기 결정권 보장:</span> 자신의 정보 공개 범위와 이용을 스스로 결정할 권리
+                                    </div>
+                                    <div class="bg-white p-3 rounded-xl border border-slate-100 text-sm">
+                                        <span class="font-bold text-sky-600">③ 현행법의 한계:</span> 기존 법은 침해·명예 훼손 사실을 직접 증명해야만 삭제 가능
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. [글 2] vs [광고문] 형식적 특성과 효과 비교 -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 card-shadow space-y-5">
+                    <div class="flex items-center gap-2 text-indigo-600 font-bold text-sm">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>핵심 개념 03. 매체와 형식에 따른 표현 특성 비교 (학습지 3쪽)</span>
+                    </div>
+                    <h3 class="text-xl font-extrabold text-slate-800">같은 찬성 관점이라도 '형식'이 다르면 효과가 달라진다!</h3>
+
+                    <!-- 광고문 시각 재구성 배너 -->
+                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex flex-col sm:flex-row items-center gap-5">
+                        <div class="w-16 h-16 rounded-2xl bg-amber-400 text-white flex items-center justify-center text-3xl shrink-0 shadow-md">
+                            <i class="fa-solid fa-eraser"></i>
+                        </div>
+                        <div class="space-y-1 text-center sm:text-left">
+                            <span class="text-xs font-bold text-amber-700 bg-amber-200/70 px-2.5 py-0.5 rounded-full">공익 광고문 「나를 지워 주세요」 핵심 메시지</span>
+                            <p class="text-base font-extrabold text-slate-800 pt-1">"잊힐 권리, 잊혀서는 안 될 권리, 이제는 법으로 보장받아야 할 권리"</p>
+                            <p class="text-xs text-slate-600">사진(강우), 글(나래), 영상(민철) 등 구체적 사례와 스마트폰 속 지우개 그림을 활용해 잊힐 권리 법제화의 필요성을 감성적으로 전달함.</p>
+                        </div>
+                    </div>
+
+                    <!-- 비교 표 -->
+                    <div class="overflow-x-auto rounded-xl border border-slate-200">
+                        <table class="w-full text-sm text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                                    <th class="p-3.5 font-extrabold w-28">비교 항목</th>
+                                    <th class="p-3.5 font-extrabold text-sky-700">[글 2] 잊힐 권리 법제화, 시급해</th>
+                                    <th class="p-3.5 font-extrabold text-amber-700">[광고문] 나를 지워 주세요</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 bg-white">
+                                <tr>
+                                    <td class="p-3.5 font-bold bg-slate-50 text-slate-700">공통 관점</td>
+                                    <td colspan="2" class="p-3.5 font-semibold text-indigo-700 bg-indigo-50/30">
+                                        잊힐 권리를 하루빨리 법으로 보장(법제화)해야 한다는 입장
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3.5 font-bold bg-slate-50 text-slate-700">형식적 특성</td>
+                                    <td class="p-3.5 text-slate-700 leading-relaxed">
+                                        • <strong>서론-본론-결론</strong>의 짜임새를 갖춘 <strong>논설문</strong><br>
+                                        • 구체적인 사례와 타당한 근거를 들어 조목조목 설명함
+                                    </td>
+                                    <td class="p-3.5 text-slate-700 leading-relaxed">
+                                        • 그림(시각 자료)과 짧고 간결한 문구로 이루어진 <strong>광고문</strong><br>
+                                        • 대조적 표현("잊힐 권리 / 잊혀서는 안 될 권리") 사용
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3.5 font-bold bg-slate-50 text-slate-700">전달 효과</td>
+                                    <td class="p-3.5 text-slate-700 leading-relaxed">
+                                        • 주장의 <strong>타당성과 신뢰성</strong>을 높임<br>
+                                        • 독자를 <strong>논리적으로 설득</strong>하는 데 효과적임
+                                    </td>
+                                    <td class="p-3.5 text-slate-700 leading-relaxed">
+                                        • 독자의 시선을 끌고 <strong>주제를 직관적으로 이해</strong>하게 함<br>
+                                        • 독자의 <strong>공감과 감성</strong>을 자극하여 깊은 인상을 남김
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="bg-white border-t border-slate-200 py-5 text-center text-xs text-slate-400">
+        심원중학교 3학년 국어 · 4단원 (1) 비교하며 읽기 자율 학습 웹앱 (개인정보 비노출 보안 모드 적용)
+    </footer>
+
+    <!-- ==================== 학생 신원확인 모달 (개인정보 비노출 보안 설계) ==================== -->
+    <div id="auth-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-5 animate-fade-in">
+            <div class="text-center space-y-2">
+                <div class="w-14 h-14 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mx-auto text-2xl">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h2 class="text-xl font-extrabold text-slate-800">학습자 신원확인</h2>
+                <p class="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                    학습 기록 저장 및 복습 노트 연동을 위해 본인 확인을 진행합니다.<br>
+                    <span class="text-indigo-600 font-semibold">* 개인정보 보호를 위해 입력한 이름과 학번은 화면이나 기기에 남지 않습니다.</span>
+                </p>
+            </div>
+
+            <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">학번 (예: 30101)</label>
+                    <input type="text" id="input-student-id" required autocomplete="off" placeholder="학번 5자리를 입력하세요"
+                        class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none text-sm font-medium">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">이름</label>
+                    <input type="text" id="input-student-name" required autocomplete="off" placeholder="이름을 입력하세요"
+                        class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none text-sm font-medium">
+                </div>
+
+                <div id="auth-feedback" class="hidden text-xs font-semibold p-3 rounded-xl"></div>
+
+                <button type="submit" id="auth-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-200 transition-all flex items-center justify-center gap-2">
+                    <span>신원확인 및 학습 시작하기</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== 자바스크립트 로직 ==================== -->
+    <script>
+        // ★ 1단계에서 배포한 Google Apps Script 웹 앱 URL을 아래 따옴표 안에 붙여넣으세요!
+        const GAS_WEB_APP_URL = "여기에_배포된_APPS_SCRIPT_웹앱_URL을_붙여넣으세요";
+
+        // 10개의 핵심 퀴즈 데이터 (학습지 1~3쪽 내용 완벽 반영)
+        const quizData = [
+// ... existing code ... -->
+        // 상태 관리 변수 (개인정보는 DOM이나 localStorage에 절대 저장하지 않고 메모리 변수로만 일시 유지)
+        let userState = quizData.map(() => ({ selected: null, isCorrect: false }));
+        let highestScore = 0;
+        let verifiedSession = {
+            isVerified: false,
+            studentId: null,
+            name: null
+        };
+
+        // 초기화 실행
+        window.onload = function () {
+            renderQuiz();
+            updateScoreUI();
+            openAuthModal();
+        };
+
+        // 신원확인 모달 열기
+        function openAuthModal() {
+            // 입력창은 항상 빈 상태로 초기화하여 화면 노출 방지
+            document.getElementById('input-student-id').value = '';
+            document.getElementById('input-student-name').value = '';
+            document.getElementById('auth-feedback').classList.add('hidden');
+            document.getElementById('auth-modal').classList.remove('hidden');
+        }
+
+        // 신원확인 폼 제출 처리
+        async function handleAuthSubmit(e) {
+            e.preventDefault();
+            const idInput = document.getElementById('input-student-id');
+            const nameInput = document.getElementById('input-student-name');
+            const submitBtn = document.getElementById('auth-submit-btn');
+            const feedback = document.getElementById('auth-feedback');
+
+            const studentId = idInput.value.trim();
+            const name = nameInput.value.trim();
+
+            if (!studentId || !name) return;
+
+            // 개인정보 즉시 입력창에서 소거 (화면/DOM 노출 차단)
+            idInput.value = '';
+            nameInput.value = '';
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>데이터베이스 확인 중...</span>`;
+
+            // Apps Script URL이 아직 설정되지 않은 경우 오프라인 체험 모드로 동작
+            if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("여기에_배포된")) {
+                verifiedSession = { isVerified: true, studentId, name };
+                document.getElementById('auth-status-text').textContent = "신원확인 완료 (비노출 모드)";
+                document.getElementById('auth-status-btn').className = "flex items-center gap-2 bg-emerald-50 text-emerald-700 px-3 py-2 rounded-xl border border-emerald-200 text-xs font-bold";
+                document.getElementById('auth-modal').classList.add('hidden');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<span>신원확인 및 학습 시작하기</span><i class="fa-solid fa-arrow-right"></i>`;
+                return;
+            }
+
+            try {
+                const response = await fetch(GAS_WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'verify',
+                        studentId: studentId,
+                        name: name
+                    })
+                });
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    verifiedSession = { isVerified: true, studentId, name };
+                    highestScore = Number(result.score) || 0;
+
+                    // 상단 배지에는 개인정보 대신 '신원확인 완료' 상태만 표시
+                    document.getElementById('auth-status-text').textContent = "신원확인 완료";
+                    document.getElementById('auth-status-btn').className = "flex items-center gap-2 bg-emerald-50 text-emerald-700 px-3 py-2 rounded-xl border border-emerald-200 text-xs font-bold";
+
+                    updateScoreUI();
+                    document.getElementById('auth-modal').classList.add('hidden');
+                } else {
+                    feedback.textContent = result.message || "신원확인에 실패했습니다.";
+                    feedback.className = "text-xs font-semibold p-3 rounded-xl bg-rose-50 text-rose-700 border border-rose-200";
+                    feedback.classList.remove('hidden');
+                }
+            } catch (error) {
+                feedback.textContent = "서버 통신 중 오류가 발생했습니다. 인터넷 연결이나 스크립트 배포 상태를 확인해 주세요.";
+                feedback.className = "text-xs font-semibold p-3 rounded-xl bg-rose-50 text-rose-700 border border-rose-200";
+                feedback.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<span>신원확인 및 학습 시작하기</span><i class="fa-solid fa-arrow-right"></i>`;
+            }
+        }
+
+        // 스프레드시트 DB에 점수 비동기 동기화
+        async function syncScoreToDatabase(score) {
+            if (!verifiedSession.isVerified) return;
+            if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("여기에_배포된")) return;
+
+            try {
+                await fetch(GAS_WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'update',
+                        studentId: verifiedSession.studentId,
+                        name: verifiedSession.name,
+                        score: score
+                    })
+                });
+            } catch (e) {
+                console.error("점수 동기화 실패:", e);
+            }
+        }
+// ... existing code ... -->
+        // 점수 계산 및 UI 업데이트 (90점 이상 시 탭 2 잠금 해제)
+        function updateScoreUI() {
+            const correctCount = userState.filter(s => s.isCorrect).length;
+            const currentScore = correctCount * 10;
+
+            if (currentScore > highestScore) {
+                highestScore = currentScore;
+                // 최고 점수가 갱신될 때마다 스프레드시트에 자동 저장
+                syncScoreToDatabase(highestScore);
+            }
+
+            document.getElementById('progress-text').textContent = `${correctCount} / ${quizData.length} 완료`;
+// ... existing code ... -->
